@@ -107,7 +107,20 @@ body{
     color:#444;
     font-weight:600;
 }
+.logout-btn{
+    background:#ef4444;
+    color:white;
+    border:none;
+    padding:10px 18px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:600;
+    transition:0.3s;
+}
 
+.logout-btn:hover{
+    background:#dc2626;
+}
 /* =========================
    CARD AREA
 ========================= */
@@ -236,9 +249,18 @@ body{
             </div>
 
             <div class="user-box">
-                👤
-                <span id="username"></span>
-            </div>
+
+    👤
+    <span id="username"></span>
+
+    <button class="logout-btn"
+            onclick="logout()">
+
+        Logout
+
+    </button>
+
+</div>
 
         </div>
 
@@ -307,6 +329,28 @@ if(!username){
 }
 
 document.getElementById('username').innerHTML = username;
+    /* =========================
+   LOGOUT
+========================= */
+
+function logout(){
+
+    const confirmLogout = confirm(
+        'Yakin ingin logout?'
+    );
+
+    if(!confirmLogout) return;
+
+    /* HAPUS SESSION */
+
+    localStorage.removeItem('username');
+    localStorage.removeItem('project');
+
+    /* KEMBALI LOGIN */
+
+    window.location.href='index.html';
+
+}
 
 </script>
 
