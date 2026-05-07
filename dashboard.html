@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Payroll</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Segoe UI,sans-serif;
+}
+
+body{
+    background:#f4f6f9;
+}
+
+/* =========================
+   MAIN LAYOUT
+========================= */
+
+.container{
+    display:flex;
+    height:100vh;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.sidebar{
+    width:250px;
+    background:linear-gradient(180deg,#081b4b,#0b2a73);
+    color:white;
+    padding:30px 20px;
+}
+
+.logo-area{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:40px;
+}
+
+.logo-area img{
+    width:45px;
+    height:45px;
+    object-fit:contain;
+}
+
+.logo-area h2{
+    font-size:16px;
+    line-height:22px;
+}
+
+.menu{
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+.menu a{
+    text-decoration:none;
+    color:white;
+    padding:15px;
+    border-radius:12px;
+    transition:0.3s;
+    font-size:15px;
+    font-weight:500;
+}
+
+.menu a:hover{
+    background:rgba(255,255,255,0.15);
+}
+
+.menu .active{
+    background:rgba(255,255,255,0.15);
+}
+
+/* =========================
+   CONTENT
+========================= */
+
+.content{
+    flex:1;
+    padding:30px;
+}
+
+/* =========================
+   TOPBAR
+========================= */
+
+.topbar{
+    background:white;
+    border-radius:18px;
+    padding:20px 30px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+.topbar h1{
+    color:#1d2d5c;
+    font-size:28px;
+}
+
+.user-box{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:#444;
+    font-weight:600;
+}
+
+/* =========================
+   CARD AREA
+========================= */
+
+.card-area{
+    margin-top:35px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:25px;
+}
+
+.card{
+    background:white;
+    border-radius:20px;
+    padding:30px;
+    box-shadow:0 3px 15px rgba(0,0,0,0.05);
+    transition:0.3s;
+    cursor:pointer;
+    border:1px solid #eee;
+}
+
+.card:hover{
+    transform:translateY(-5px);
+}
+
+.icon{
+    width:70px;
+    height:70px;
+    border-radius:18px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:30px;
+    margin-bottom:25px;
+}
+
+.bpjs-icon{
+    background:#e8f0ff;
+    color:#2155d6;
+}
+
+.slip-icon{
+    background:#eaf8ef;
+    color:#159447;
+}
+
+.card h3{
+    color:#222;
+    margin-bottom:15px;
+    font-size:22px;
+}
+
+.card p{
+    color:#777;
+    line-height:26px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:900px){
+
+    .container{
+        flex-direction:column;
+    }
+
+    .sidebar{
+        width:100%;
+    }
+
+    .content{
+        padding:20px;
+    }
+
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+    <!-- SIDEBAR -->
+
+    <div class="sidebar">
+
+        <div class="logo-area">
+
+            <!-- GANTI DENGAN LOGO -->
+            <img src="logo.png">
+
+            <h2>
+                PT BINTANG<br>
+                FAJAR PERSADA
+            </h2>
+
+        </div>
+
+        <div class="menu">
+
+            <a href="#" class="active">
+                🏠 Dashboard
+            </a>
+
+            <a href="cek-bpjs.html">
+                💳 Cek dan Tarik Kartu BPJS
+            </a>
+
+            <a href="slip-gaji.html">
+                📄 Download Slip Gaji
+            </a>
+
+        </div>
+
+    </div>
+
+    <!-- CONTENT -->
+
+    <div class="content">
+
+        <!-- TOPBAR -->
+
+        <div class="topbar">
+
+            <div>
+                <h1>Dashboard</h1>
+            </div>
+
+            <div class="user-box">
+                👤
+                <span id="username"></span>
+            </div>
+
+        </div>
+
+        <!-- CARD MENU -->
+
+        <div class="card-area">
+
+            <!-- CARD BPJS -->
+
+            <div class="card"
+                 onclick="window.location.href='cek-bpjs.html'">
+
+                <div class="icon bpjs-icon">
+                    💳
+                </div>
+
+                <h3>
+                    Cek dan Tarik Kartu BPJS
+                </h3>
+
+                <p>
+                    Cek data dan download kartu BPJS
+                    Kesehatan dan BPJS TK sesuai project.
+                </p>
+
+            </div>
+
+            <!-- CARD SLIP -->
+
+            <div class="card"
+                 onclick="window.location.href='slip-gaji.html'">
+
+                <div class="icon slip-icon">
+                    📄
+                </div>
+
+                <h3>
+                    Download Slip Gaji
+                </h3>
+
+                <p>
+                    Download slip gaji karyawan sesuai
+                    periode yang tersedia.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+/* =========================
+   SESSION LOGIN
+========================= */
+
+const username = localStorage.getItem('username');
+
+if(!username){
+
+    window.location.href='index.html';
+
+}
+
+document.getElementById('username').innerHTML = username;
+
+</script>
+
+</body>
+</html>
