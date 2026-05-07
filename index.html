@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal Payroll - PT Bintang Fajar Persada</title>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Segoe UI,sans-serif;
+}
+
+body{
+    background:#f4f6f9;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.container{
+    width:1000px;
+    height:600px;
+    background:#fff;
+    border-radius:20px;
+    overflow:hidden;
+    display:flex;
+    box-shadow:0 5px 20px rgba(0,0,0,0.08);
+}
+
+.left-panel{
+    width:40%;
+    background:#ffffff;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    border-right:1px solid #eee;
+    padding:30px;
+}
+
+.logo{
+    width:160px;
+    margin-bottom:25px;
+}
+
+.left-panel h1{
+    font-size:24px;
+    color:#1d2d5c;
+    margin-bottom:10px;
+    text-align:center;
+}
+
+.left-panel p{
+    color:#777;
+    letter-spacing:2px;
+}
+
+.right-panel{
+    width:60%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.login-box{
+    width:400px;
+}
+
+.login-box h2{
+    margin-bottom:30px;
+    color:#1d2d5c;
+    font-size:32px;
+}
+
+.form-group{
+    margin-bottom:20px;
+}
+
+.form-group label{
+    display:block;
+    margin-bottom:8px;
+    font-weight:600;
+    color:#444;
+}
+
+.form-group input,
+.form-group select{
+    width:100%;
+    height:50px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    padding:0 15px;
+    font-size:15px;
+    outline:none;
+    transition:0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus{
+    border-color:#1d2d5c;
+}
+
+button{
+    width:100%;
+    height:50px;
+    border:none;
+    border-radius:10px;
+    background:#1d2d5c;
+    color:white;
+    font-size:16px;
+    font-weight:600;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+button:hover{
+    background:#2d447f;
+}
+
+#message{
+    margin-top:20px;
+    text-align:center;
+    font-weight:600;
+}
+
+@media(max-width:900px){
+
+    body{
+        height:auto;
+        padding:20px 0;
+    }
+
+    .container{
+        width:95%;
+        height:auto;
+        flex-direction:column;
+    }
+
+    .left-panel,
+    .right-panel{
+        width:100%;
+        padding:40px 20px;
+    }
+
+    .left-panel{
+        border-right:none;
+        border-bottom:1px solid #eee;
+    }
+
+    .login-box{
+        width:100%;
+    }
+
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+    <div class="left-panel">
+
+        <!-- GANTI src DENGAN LINK LOGO ANDA -->
+        <img src="logo.png" class="logo">
+
+        <h1>PT BINTANG FAJAR PERSADA</h1>
+        <p>PORTAL PAYROLL</p>
+
+    </div>
+
+    <div class="right-panel">
+
+        <div class="login-box">
+
+            <h2>Login</h2>
+
+            <div class="form-group">
+                <label>User</label>
+                <input type="text" id="username" placeholder="Masukkan username">
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Masukkan password">
+            </div>
+
+            <div class="form-group">
+                <label>Project</label>
+
+                <select id="project">
+                    <option value="">Pilih Project</option>
+                    <option>PROJECT ALPHA</option>
+                    <option>PROJECT BRAVO</option>
+                </select>
+
+            </div>
+
+            <button onclick="login()">
+                Login
+            </button>
+
+            <div id="message"></div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+/* ===============================
+   SUPABASE CONFIG
+================================== */
+
+const SUPABASE_URL = 'https://dvhjaxqpoqpeyamtlvgh.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2aGpheHFwb3FwZXlhbXRsdmdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMzU1MjAsImV4cCI6MjA5MzcxMTUyMH0.qwX2LZ-9A1ZoLaqkRnZcDValUNKCYoqMvA_Vs79NkWY';
+
+const supabaseClient = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+/* ===============================
+   LOGIN FUNCTION
+================================== */
+
+async function login(){
+
+    const username = document
+        .getElementById('username')
+        .value
+        .trim();
+
+    const password = document
+        .getElementById('password')
+        .value
+        .trim();
+
+    const project = document
+        .getElementById('project')
+        .value;
+
+    const message = document
+        .getElementById('message');
+
+    /* VALIDASI */
+
+    if(!username || !password || !project){
+
+        message.style.color = 'red';
+        message.innerHTML = 'Lengkapi semua field';
+
+        return;
+    }
+
+    /* CEK DATABASE */
+
+    const { data, error } = await supabaseClient
+        .from('users')
+        .select('*')
+        .eq('username', username)
+        .eq('password', password)
+        .eq('project', project)
+        .single();
+
+    /* LOGIN GAGAL */
+
+    if(error || !data){
+
+        message.style.color = 'red';
+        message.innerHTML = 'Login gagal';
+
+        return;
+    }
+
+    /* SIMPAN SESSION */
+
+    localStorage.setItem(
+        'username',
+        data.username
+    );
+
+    localStorage.setItem(
+        'project',
+        data.project
+    );
+
+    /* LOGIN BERHASIL */
+
+    message.style.color = 'green';
+    message.innerHTML = 'Login berhasil';
+
+    setTimeout(()=>{
+
+        window.location.href = 'dashboard.html';
+
+    },1000);
+
+}
+
+</script>
+
+</body>
+</html>
