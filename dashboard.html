@@ -1,9 +1,14 @@
+# Dashboard Payroll + Filter Nama + Pagination 25 Data
+
+```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Payroll</title>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
 <style>
 
@@ -18,18 +23,10 @@ body{
     background:#f4f6f9;
 }
 
-/* =========================
-   MAIN LAYOUT
-========================= */
-
 .container{
     display:flex;
-    height:100vh;
+    min-height:100vh;
 }
-
-/* =========================
-   SIDEBAR
-========================= */
 
 .sidebar{
     width:250px;
@@ -64,26 +61,15 @@ body{
     font-weight:500;
 }
 
-.menu a:hover{
-    background:rgba(255,255,255,0.15);
-}
-
+.menu a:hover,
 .menu .active{
     background:rgba(255,255,255,0.15);
 }
-
-/* =========================
-   CONTENT
-========================= */
 
 .content{
     flex:1;
     padding:30px;
 }
-
-/* =========================
-   TOPBAR
-========================= */
 
 .topbar{
     background:white;
@@ -107,10 +93,6 @@ body{
     color:#444;
     font-weight:600;
 }
-
-/* =========================
-   CARD AREA
-========================= */
 
 .card-area{
     margin-top:35px;
@@ -166,8 +148,83 @@ body{
 }
 
 /* =========================
-   MOBILE
+   TABLE
 ========================= */
+
+.table-box{
+    background:white;
+    margin-top:35px;
+    border-radius:20px;
+    padding:25px;
+    box-shadow:0 3px 15px rgba(0,0,0,0.05);
+}
+
+.filter-box{
+    margin-bottom:20px;
+}
+
+.filter-box input{
+    width:350px;
+    height:45px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    padding:0 15px;
+    outline:none;
+    font-size:15px;
+}
+
+.table-responsive{
+    overflow:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+table th{
+    background:#f7f9fc;
+    color:#1d2d5c;
+    padding:15px;
+    text-align:left;
+}
+
+table td{
+    padding:15px;
+    border-bottom:1px solid #eee;
+}
+
+/* =========================
+   PAGINATION
+========================= */
+
+.pagination{
+    margin-top:25px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+.pagination button{
+    min-width:40px;
+    height:40px;
+    border:none;
+    border-radius:10px;
+    background:#e5e7eb;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.pagination button.active{
+    background:#1d2d5c;
+    color:white;
+}
+
+.pagination button:hover{
+    opacity:0.9;
+}
 
 @media(max-width:900px){
 
@@ -183,6 +240,10 @@ body{
         padding:20px;
     }
 
+    .filter-box input{
+        width:100%;
+    }
+
 }
 
 </style>
@@ -191,8 +252,6 @@ body{
 <body>
 
 <div class="container">
-
-    <!-- SIDEBAR -->
 
     <div class="sidebar">
 
@@ -223,11 +282,7 @@ body{
 
     </div>
 
-    <!-- CONTENT -->
-
     <div class="content">
-
-        <!-- TOPBAR -->
 
         <div class="topbar">
 
@@ -242,11 +297,7 @@ body{
 
         </div>
 
-        <!-- CARD MENU -->
-
         <div class="card-area">
-
-            <!-- CARD BPJS -->
 
             <div class="card"
                  onclick="window.location.href='cek-bpjs.html'">
@@ -265,8 +316,6 @@ body{
                 </p>
 
             </div>
-
-            <!-- CARD SLIP -->
 
             <div class="card"
                  onclick="window.location.href='slip-gaji.html'">
@@ -288,6 +337,43 @@ body{
 
         </div>
 
+        <!-- TABLE KARYAWAN -->
+
+        <div class="table-box">
+
+            <div class="filter-box">
+
+                <input type="text"
+                       id="searchInput"
+                       placeholder="Filter by nama..."
+                       onkeyup="filterData()">
+
+            </div>
+
+            <div class="table-responsive">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Nopeg</th>
+                            <th>Nama</th>
+                            <th>Project</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tableBody">
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div class="pagination" id="pagination">
+            </div>
+
+        </div>
+
     </div>
 
 </div>
@@ -295,20 +381,238 @@ body{
 <script>
 
 /* =========================
+   SUPABASE
+========================= */
+
+const SUPABASE_URL = 'https://dvhjaxqpoqpeyamtlvgh.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2aGpheHFwb3FwZXlhbXRsdmdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMzU1MjAsImV4cCI6MjA5MzcxMTUyMH0.qwX2LZ-9A1ZoLaqkRnZcDValUNKCYoqMvA_Vs79NkWY';
+
+const supabaseClient = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+/* =========================
    SESSION LOGIN
 ========================= */
 
 const username = localStorage.getItem('username');
+const project = localStorage.getItem('project');
 
 if(!username){
-
     window.location.href='index.html';
-
 }
 
 document.getElementById('username').innerHTML = username;
+
+/* =========================
+   GLOBAL VARIABLE
+========================= */
+
+let allData = [];
+let filteredData = [];
+let currentPage = 1;
+const rowsPerPage = 25;
+
+/* =========================
+   LOAD DATA
+========================= */
+
+async function loadData(){
+
+    const { data, error } = await supabaseClient
+        .from('bpjs_karyawan')
+        .select('*')
+        .eq('project', project)
+        .order('nama',{ascending:true});
+
+    if(error){
+        alert(error.message);
+        return;
+    }
+
+    allData = data;
+    filteredData = data;
+
+    renderTable();
+    renderPagination();
+
+}
+
+loadData();
+
+/* =========================
+   RENDER TABLE
+========================= */
+
+function renderTable(){
+
+    const tableBody = document.getElementById('tableBody');
+
+    const start = (currentPage - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    const pageData = filteredData.slice(start,end);
+
+    let html='';
+
+    pageData.forEach(item=>{
+
+        html += `
+            <tr>
+                <td>${item.nopeg || ''}</td>
+                <td>${item.nama || ''}</td>
+                <td>${item.project || ''}</td>
+            </tr>
+        `;
+
+    });
+
+    tableBody.innerHTML = html;
+
+}
+
+/* =========================
+   FILTER DATA
+========================= */
+
+function filterData(){
+
+    const keyword = document
+        .getElementById('searchInput')
+        .value
+        .toLowerCase();
+
+    filteredData = allData.filter(item=>
+        (item.nama || '')
+        .toLowerCase()
+        .includes(keyword)
+    );
+
+    currentPage = 1;
+
+    renderTable();
+    renderPagination();
+
+}
+
+/* =========================
+   PAGINATION
+========================= */
+
+function renderPagination(){
+
+    const pagination = document.getElementById('pagination');
+
+    pagination.innerHTML = '';
+
+    const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+
+    if(totalPages <= 1) return;
+
+    // PREV BUTTON
+
+    if(currentPage > 1){
+
+        pagination.innerHTML += `
+            <button onclick="changePage(${currentPage-1})">
+                ←
+            </button>
+        `;
+
+    }
+
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, currentPage + 2);
+
+    if(currentPage <= 3){
+        endPage = Math.min(5,totalPages);
+    }
+
+    if(currentPage >= totalPages - 2){
+        startPage = Math.max(1,totalPages - 4);
+    }
+
+    // FIRST PAGE
+
+    if(startPage > 1){
+
+        pagination.innerHTML += `
+            <button onclick="changePage(1)">
+                1
+            </button>
+        `;
+
+        if(startPage > 2){
+            pagination.innerHTML += `<span>...</span>`;
+        }
+
+    }
+
+    // PAGE NUMBER
+
+    for(let i=startPage; i<=endPage; i++){
+
+        pagination.innerHTML += `
+            <button
+                class="${i===currentPage ? 'active' : ''}"
+                onclick="changePage(${i})">
+                ${i}
+            </button>
+        `;
+
+    }
+
+    // LAST PAGE
+
+    if(endPage < totalPages){
+
+        if(endPage < totalPages - 1){
+            pagination.innerHTML += `<span>...</span>`;
+        }
+
+        pagination.innerHTML += `
+            <button onclick="changePage(${totalPages})">
+                ${totalPages}
+            </button>
+        `;
+
+    }
+
+    // NEXT BUTTON
+
+    if(currentPage < totalPages){
+
+        pagination.innerHTML += `
+            <button onclick="changePage(${currentPage+1})">
+                →
+            </button>
+        `;
+
+    }
+
+}
+
+/* =========================
+   CHANGE PAGE
+========================= */
+
+function changePage(page){
+
+    currentPage = page;
+
+    renderTable();
+    renderPagination();
+
+    window.scrollTo({
+        top:0,
+        behavior:'smooth'
+    });
+
+}
 
 </script>
 
 </body>
 </html>
+```
