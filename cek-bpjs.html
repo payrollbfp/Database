@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cek dan Tarik Kartu BPJS</title>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Segoe UI,sans-serif;
+}
+
+body{
+    background:#f4f6f9;
+}
+
+/* =========================
+   LAYOUT
+========================= */
+
+.container{
+    display:flex;
+    min-height:100vh;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.sidebar{
+    width:250px;
+    background:linear-gradient(180deg,#081b4b,#0b2a73);
+    color:white;
+    padding:30px 20px;
+}
+
+.logo-area{
+    margin-bottom:40px;
+}
+
+.logo-area h2{
+    font-size:18px;
+    line-height:28px;
+    color:white;
+}
+
+.menu{
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+.menu a{
+    text-decoration:none;
+    color:white;
+    padding:15px;
+    border-radius:12px;
+    transition:0.3s;
+    font-size:15px;
+    font-weight:500;
+}
+
+.menu a:hover{
+    background:rgba(255,255,255,0.15);
+}
+
+.menu .active{
+    background:rgba(255,255,255,0.15);
+}
+
+/* =========================
+   CONTENT
+========================= */
+
+.content{
+    flex:1;
+    padding:30px;
+}
+
+.topbar{
+    background:white;
+    border-radius:18px;
+    padding:20px 30px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    box-shadow:0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom:25px;
+}
+
+.topbar h1{
+    color:#1d2d5c;
+}
+
+.user-box{
+    font-weight:600;
+    color:#444;
+}
+
+/* =========================
+   TABLE
+========================= */
+
+.table-box{
+    background:white;
+    border-radius:20px;
+    padding:25px;
+    overflow:auto;
+    box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:1400px;
+}
+
+table th{
+    background:#f7f9fc;
+    padding:15px;
+    text-align:left;
+    color:#1d2d5c;
+    font-size:14px;
+}
+
+table td{
+    padding:15px;
+    border-bottom:1px solid #eee;
+    font-size:14px;
+}
+
+.status-active{
+    background:#dcfce7;
+    color:#166534;
+    padding:6px 12px;
+    border-radius:30px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.status-non{
+    background:#fee2e2;
+    color:#991b1b;
+    padding:6px 12px;
+    border-radius:30px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.download-btn{
+    background:#1d4ed8;
+    color:white;
+    border:none;
+    padding:8px 12px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.edit-btn{
+    background:#f59e0b;
+    color:white;
+    border:none;
+    padding:8px 12px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.4);
+    display:none;
+    justify-content:center;
+    align-items:center;
+}
+
+.modal-content{
+    background:white;
+    width:500px;
+    padding:30px;
+    border-radius:20px;
+}
+
+.modal-content h2{
+    margin-bottom:25px;
+    color:#1d2d5c;
+}
+
+.form-group{
+    margin-bottom:18px;
+}
+
+.form-group label{
+    display:block;
+    margin-bottom:8px;
+    font-weight:600;
+}
+
+.form-group input,
+.form-group select{
+    width:100%;
+    height:45px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    padding:0 12px;
+}
+
+.save-btn{
+    width:100%;
+    height:45px;
+    border:none;
+    border-radius:10px;
+    background:#1d2d5c;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+    <!-- SIDEBAR -->
+
+    <div class="sidebar">
+
+        <div class="logo-area">
+
+            <h2>
+                PT BINTANG<br>
+                FAJAR PERSADA
+            </h2>
+
+        </div>
+
+        <div class="menu">
+
+            <a href="dashboard.html">
+                🏠 Dashboard
+            </a>
+
+            <a href="#" class="active">
+                💳 Cek dan Tarik Kartu BPJS
+            </a>
+
+            <a href="slip-gaji.html">
+                📄 Download Slip Gaji
+            </a>
+
+        </div>
+
+    </div>
+
+    <!-- CONTENT -->
+
+    <div class="content">
+
+        <div class="topbar">
+
+            <h1>
+                Cek dan Tarik Kartu BPJS
+            </h1>
+
+            <div class="user-box">
+                👤 <span id="username"></span>
+            </div>
+
+        </div>
+
+        <!-- TABLE -->
+
+        <div class="table-box">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Nopeg</th>
+                        <th>Nama</th>
+                        <th>Project</th>
+                        <th>No Kartu BPJS Kesehatan</th>
+                        <th>Status BPJS Kesehatan</th>
+                        <th>Download Kartu BPJS Kesehatan</th>
+                        <th>No Kartu BPJS TK</th>
+                        <th>Download Kartu BPJS TK</th>
+                        <th>Edit</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="tableBody">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- MODAL EDIT -->
+
+<div class="modal" id="editModal">
+
+    <div class="modal-content">
+
+        <h2>Edit Data BPJS</h2>
+
+        <input type="hidden" id="editId">
+
+        <div class="form-group">
+            <label>Nopeg</label>
+            <input type="text" id="editNopeg">
+        </div>
+
+        <div class="form-group">
+            <label>Nama</label>
+            <input type="text" id="editNama">
+        </div>
+
+        <div class="form-group">
+            <label>No BPJS Kesehatan</label>
+            <input type="text" id="editBpjsKes">
+        </div>
+
+        <div class="form-group">
+            <label>Status BPJS Kesehatan</label>
+
+            <select id="editStatus">
+                <option value="AKTIF">AKTIF</option>
+                <option value="NON AKTIF">NON AKTIF</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Link Kartu BPJS Kesehatan</label>
+            <input type="text" id="editLinkKes">
+        </div>
+
+        <div class="form-group">
+            <label>No BPJS TK</label>
+            <input type="text" id="editBpjsTk">
+        </div>
+
+        <div class="form-group">
+            <label>Link Kartu BPJS TK</label>
+            <input type="text" id="editLinkTk">
+        </div>
+
+        <button class="save-btn" onclick="updateData()">
+            Simpan Data
+        </button>
+
+    </div>
+
+</div>
+
+<script>
+
+/* =========================
+   SUPABASE
+========================= */
+
+const SUPABASE_URL = 'https://dvhjaxqpoqpeyamtlvgh.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2aGpheHFwb3FwZXlhbXRsdmdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMzU1MjAsImV4cCI6MjA5MzcxMTUyMH0.qwX2LZ-9A1ZoLaqkRnZcDValUNKCYoqMvA_Vs79NkWY';
+
+const supabaseClient = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+/* =========================
+   SESSION
+========================= */
+
+const username = localStorage.getItem('username');
+const project = localStorage.getItem('project');
+
+if(!username){
+
+    window.location.href='index.html';
+
+}
+
+document.getElementById('username').innerHTML = username;
+
+/* =========================
+   LOAD DATA
+========================= */
+
+async function loadData(){
+
+    const { data, error } = await supabaseClient
+        .from('bpjs_karyawan')
+        .select('*')
+        .eq('project', project)
+        .order('nama', { ascending:true });
+
+    if(error){
+
+        alert(error.message);
+        return;
+
+    }
+
+    let html='';
+
+    data.forEach(item=>{
+
+        html += `
+            <tr>
+
+                <td>${item.nopeg || ''}</td>
+                <td>${item.nama || ''}</td>
+                <td>${item.project || ''}</td>
+
+                <td>${item.no_bpjs_kesehatan || ''}</td>
+
+                <td>
+                    ${
+                        item.status_bpjs == 'AKTIF'
+                        ?
+                        '<span class="status-active">AKTIF</span>'
+                        :
+                        '<span class="status-non">NON AKTIF</span>'
+                    }
+                </td>
+
+                <td>
+                    ${
+                        item.link_kartu_kesehatan
+                        ?
+                        `<a href="${item.link_kartu_kesehatan}" target="_blank">
+                            <button class="download-btn">
+                                Download
+                            </button>
+                        </a>`
+                        :
+                        '-'
+                    }
+                </td>
+
+                <td>${item.no_bpjs_tk || ''}</td>
+
+                <td>
+                    ${
+                        item.link_kartu_tk
+                        ?
+                        `<a href="${item.link_kartu_tk}" target="_blank">
+                            <button class="download-btn">
+                                Download
+                            </button>
+                        </a>`
+                        :
+                        '-'
+                    }
+                </td>
+
+                <td>
+                    <button class="edit-btn"
+                        onclick='openEdit(${JSON.stringify(item)})'>
+                        ✏️
+                    </button>
+                </td>
+
+            </tr>
+        `;
+
+    });
+
+    document.getElementById('tableBody').innerHTML = html;
+
+}
+
+loadData();
+
+/* =========================
+   OPEN MODAL
+========================= */
+
+function openEdit(item){
+
+    document.getElementById('editModal').style.display='flex';
+
+    document.getElementById('editId').value = item.id;
+    document.getElementById('editNopeg').value = item.nopeg || '';
+    document.getElementById('editNama').value = item.nama || '';
+    document.getElementById('editBpjsKes').value = item.no_bpjs_kesehatan || '';
+    document.getElementById('editStatus').value = item.status_bpjs || 'AKTIF';
+    document.getElementById('editLinkKes').value = item.link_kartu_kesehatan || '';
+    document.getElementById('editBpjsTk').value = item.no_bpjs_tk || '';
+    document.getElementById('editLinkTk').value = item.link_kartu_tk || '';
+
+}
+
+/* =========================
+   UPDATE DATA
+========================= */
+
+async function updateData(){
+
+    const id = document.getElementById('editId').value;
+
+    const { error } = await supabaseClient
+        .from('bpjs_karyawan')
+        .update({
+
+            nopeg:document.getElementById('editNopeg').value,
+            nama:document.getElementById('editNama').value,
+            no_bpjs_kesehatan:document.getElementById('editBpjsKes').value,
+            status_bpjs:document.getElementById('editStatus').value,
+            link_kartu_kesehatan:document.getElementById('editLinkKes').value,
+            no_bpjs_tk:document.getElementById('editBpjsTk').value,
+            link_kartu_tk:document.getElementById('editLinkTk').value
+
+        })
+        .eq('id', id);
+
+    if(error){
+
+        alert(error.message);
+        return;
+
+    }
+
+    alert('Data berhasil diupdate');
+
+    document.getElementById('editModal').style.display='none';
+
+    loadData();
+
+}
+
+/* =========================
+   CLOSE MODAL
+========================= */
+
+window.onclick = function(e){
+
+    const modal = document.getElementById('editModal');
+
+    if(e.target == modal){
+
+        modal.style.display='none';
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
