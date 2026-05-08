@@ -401,8 +401,20 @@ table td{
             <label>Status BPJS Kesehatan</label>
 
             <select id="editStatus">
-                <option value="AKTIF">AKTIF</option>
-                <option value="NON AKTIF">NON AKTIF</option>
+                <option value="AKTIF">Aktif BFP</option>
+                <option value="NON AKTIF">Ikut Istri</option>
+                <option value="NON AKTIF">Ikut Orang Tua</option>
+                <option value="NON AKTIF">Ikut Suami</option>
+                <option value="NON AKTIF">Jamkesda</option>
+                <option value="NON AKTIF">JMKB</option>
+                <option value="NON AKTIF">Kepolisian RI</option>
+                <option value="NON AKTIF">MANDIRI</option>
+                <option value="NON AKTIF">Non Aktif Resign</option>
+                <option value="NON AKTIF">PBI</option>
+                <option value="NON AKTIF">Pemda</option>
+                <option value="NON AKTIF">Pemerintah</option>
+                <option value="NON AKTIF">Pemprov</option>
+                <option value="NON AKTIF">PNS Daerah</option>
             </select>
         </div>
 
@@ -525,9 +537,33 @@ function renderTable(){
                     ${
                         item.status_bpjs == 'AKTIF'
                         ?
-                        '<span class="status-active">AKTIF</span>'
+                        '<span class="status-active">Aktif BFP</span>'
                         :
-                        '<span class="status-non">NON AKTIF</span>'
+                        '<span class="status-non">Ikut Istri</span>'
+                         :
+                        '<span class="status-non">Ikut Orang Tua</span>'
+                         :
+                        '<span class="status-non">Ikut Suami</span>'
+                         :
+                        '<span class="status-non">Jamkesda</span>'
+                         :
+                        '<span class="status-non">JMKB</span>'
+                         :
+                        '<span class="status-non">Kepolisian RI</span>'
+                         :
+                        '<span class="status-non">MANDIRI</span>'
+                         :
+                        '<span class="status-non">Non Aktif Resign</span>'
+                         :
+                        '<span class="status-non">PBI</span>'
+                         :
+                        '<span class="status-non">Pemda</span>'
+                         :
+                        '<span class="status-non">Pemerintah</span>'
+                         :
+                        '<span class="status-non">Pemprov</span>'
+                         :
+                        '<span class="status-non">PNS Daerah</span>'
                     }
                 </td>
 
