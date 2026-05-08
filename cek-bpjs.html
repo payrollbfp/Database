@@ -534,38 +534,12 @@ function renderTable(){
                 <td>${item.no_bpjs_kesehatan || ''}</td>
 
                 <td>
-                    ${
-                        item.status_bpjs == 'AKTIF'
-                        ?
-                        '<span class="status-active">Aktif BFP</span>'
-                        :
-                        '<span class="status-non">Ikut Istri</span>'
-                         :
-                        '<span class="status-non">Ikut Orang Tua</span>'
-                         :
-                        '<span class="status-non">Ikut Suami</span>'
-                         :
-                        '<span class="status-non">Jamkesda</span>'
-                         :
-                        '<span class="status-non">JMKB</span>'
-                         :
-                        '<span class="status-non">Kepolisian RI</span>'
-                         :
-                        '<span class="status-non">MANDIRI</span>'
-                         :
-                        '<span class="status-non">Non Aktif Resign</span>'
-                         :
-                        '<span class="status-non">PBI</span>'
-                         :
-                        '<span class="status-non">Pemda</span>'
-                         :
-                        '<span class="status-non">Pemerintah</span>'
-                         :
-                        '<span class="status-non">Pemprov</span>'
-                         :
-                        '<span class="status-non">PNS Daerah</span>'
-                    }
-                </td>
+    ${
+        item.status_bpjs === 'AKTIF'
+        ? '<span class="status-active">Aktif BFP</span>'
+        : `<span class="status-non">${item.status_bpjs || 'NON AKTIF'}</span>`
+    }
+</td>
 
                 <td>
                     ${
