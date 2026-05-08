@@ -534,11 +534,13 @@ function renderTable(){
                 <td>${item.no_bpjs_kesehatan || ''}</td>
 
                 <td>
-    ${
-        item.status_bpjs === 'AKTIF'
-        ? '<span class="status-active">Aktif BFP</span>'
-        : `<span class="status-non">${item.status_bpjs || 'NON AKTIF'}</span>`
-    }
+    <span class="${
+        (item.status_bpjs || '').toUpperCase() === 'Aktif BFP'
+        ? 'status-active'
+        : 'status-non'
+    }">
+        ${item.status_bpjs || '-'}
+    </span>
 </td>
 
                 <td>
